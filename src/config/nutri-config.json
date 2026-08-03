@@ -1,0 +1,9 @@
+{
+  "freshnessWeight": 0.25,
+  "completenessWeight": 0.25,
+  "lineageWeight": 0.25,
+  "testCoverageWeight": 0.25,
+  "needsAttentionThreshold": 70,
+  "defaultExpectedCadenceHours": 24,
+  "defaultStalenessThresholdHours": 72
+}
