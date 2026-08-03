@@ -1,0 +1,255 @@
+/* Nutri FDA-Style Nutrition Facts Design System */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap');
+
+:root {
+  --nutri-bg: #ffffff;
+  --nutri-text: #0f172a;
+  --nutri-border-dark: #000000;
+  --nutri-border-muted: #e2e8f0;
+  --nutri-accent-green: #059669;
+  --nutri-accent-yellow: #d97706;
+  --nutri-accent-red: #dc2626;
+  --nutri-bg-subtle: #f8fafc;
+  --nutri-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.nutri-label-card {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--nutri-bg);
+  color: var(--nutri-text);
+  border: 3px solid var(--nutri-border-dark);
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: var(--nutri-shadow);
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Header */
+.nutri-header {
+  border-bottom: 10px solid var(--nutri-border-dark);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.nutri-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: 2.25rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--nutri-border-dark);
+}
+
+.nutri-subtitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  color: #475569;
+}
+
+/* Amount Per Serving Section */
+.nutri-section-score {
+  border-bottom: 6px solid var(--nutri-border-dark);
+  padding: 12px 0;
+}
+
+.nutri-score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nutri-score-label {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #334155;
+}
+
+.nutri-score-val {
+  font-size: 2.75rem;
+  font-weight: 900;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nutri-score-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-high {
+  background-color: #ecfdf5;
+  color: var(--nutri-accent-green);
+  border: 1px solid #a7f3d0;
+}
+
+.badge-medium {
+  background-color: #fffbeb;
+  color: var(--nutri-accent-yellow);
+  border: 1px solid #fde68a;
+}
+
+.badge-low {
+  background-color: #fef2f2;
+  color: var(--nutri-accent-red);
+  border: 1px solid #fecaca;
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: #fecaca; }
+  50% { border-color: var(--nutri-accent-red); }
+}
+
+/* Plain English Verdict Box */
+.nutri-verdict-box {
+  background-color: #f1f5f9;
+  border-left: 4px solid var(--nutri-border-dark);
+  padding: 10px 12px;
+  margin: 12px 0 0 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  font-style: italic;
+  color: #1e293b;
+}
+
+/* % Daily Value Header */
+.nutri-dv-header {
+  text-align: right;
+  font-size: 0.75rem;
+  font-weight: 800;
+  border-bottom: 1px solid var(--nutri-border-dark);
+  padding: 6px 0;
+  margin-top: 4px;
+}
+
+/* Sub-score Rows */
+.nutri-subscore-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 8px 0;
+  font-size: 0.875rem;
+}
+
+.nutri-subscore-name {
+  font-weight: 700;
+}
+
+.nutri-subscore-val {
+  font-weight: 900;
+}
+
+.nutri-subscore-details {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Ingredients Section */
+.nutri-ingredients-section {
+  border-top: 6px solid var(--nutri-border-dark);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.nutri-ingredients-title {
+  font-size: 0.8125rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.nutri-ingredient-item {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  padding: 4px 0;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.nutri-field-name {
+  font-weight: 700;
+  font-family: monospace;
+  background-color: #f1f5f9;
+  padding: 1px 4px;
+  border-radius: 4px;
+  margin-right: 6px;
+}
+
+.nutri-undocumented-badge {
+  color: var(--nutri-accent-red);
+  font-weight: 700;
+  font-style: italic;
+}
+
+/* Allergens & Warnings Section */
+.nutri-warnings-section {
+  border-top: 4px solid var(--nutri-accent-red);
+  background-color: #fef2f2;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 14px;
+}
+
+.nutri-warnings-title {
+  font-size: 0.8125rem;
+  font-weight: 900;
+  color: var(--nutri-accent-red);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.nutri-warning-item {
+  font-size: 0.75rem;
+  color: #991b1b;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* Interactive Weight Controls */
+.nutri-controls-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.nutri-preset-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nutri-preset-btn.active {
+  background: var(--nutri-border-dark);
+  color: #ffffff;
+  border-color: var(--nutri-border-dark);
+}
