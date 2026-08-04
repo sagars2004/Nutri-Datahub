@@ -8,7 +8,11 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "mcp:server": "tsx scripts/mcp-server.ts",
+    "nutri:eval": "tsx scripts/nutri-cli.ts eval",
+    "nutri:batch": "tsx scripts/nutri-cli.ts batch",
+    "nutri:ci": "tsx scripts/nutri-cli.ts ci"
   },
   "dependencies": {
     "@google/genai": "^2.15.0",
@@ -36,6 +40,7 @@
     "autoprefixer": "^10.5.4",
     "postcss": "^8.5.25",
     "tailwindcss": "^3.4.19",
+    "tsx": "^4.23.5",
     "typescript": "^5.5.3",
     "vitest": "^2.0.2"
   }

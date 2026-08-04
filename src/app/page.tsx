@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { NutriLabel } from '../components/NutriLabel';
+import { AnalyticsAgentChat } from '../components/AnalyticsAgentChat';
 import { NutriEntity, WeightConfig } from '../types/nutri';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,6 +60,7 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const [currentEntity, setCurrentEntity] = useState<NutriEntity | null>(null);
+  const [currentScoreResult, setCurrentScoreResult] = useState<any>(null);
   const [verdictSummary, setVerdictSummary] = useState<string>('');
   const [columnDescriptions, setColumnDescriptions] = useState<Record<string, string>>({});
 
@@ -111,6 +113,7 @@ export default function HomePage() {
         throw new Error(data.error || 'Failed to load entity details');
       }
       setCurrentEntity(data.entity);
+      setCurrentScoreResult(data.scoreResult);
       setVerdictSummary(data.verdictSummary);
       setColumnDescriptions(data.columnDescriptions || {});
     } catch (err: any) {
@@ -652,13 +655,19 @@ export default function HomePage() {
                     </p>
                   </Card>
                 ) : currentEntity ? (
-                  <NutriLabel
-                    entity={currentEntity}
-                    verdictSummary={verdictSummary}
-                    columnDescriptions={columnDescriptions}
-                    onSaveToDataHub={handleSyncToDataHub}
-                    isSaving={isSaving}
-                  />
+                  <div className="flex flex-col space-y-4">
+                    <NutriLabel
+                      entity={currentEntity}
+                      verdictSummary={verdictSummary}
+                      columnDescriptions={columnDescriptions}
+                      onSaveToDataHub={handleSyncToDataHub}
+                      isSaving={isSaving}
+                    />
+                    <AnalyticsAgentChat
+                      entity={currentEntity}
+                      scoreResult={currentScoreResult}
+                    />
+                  </div>
                 ) : null}
               </div>
 
