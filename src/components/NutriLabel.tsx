@@ -1,14 +1,20 @@
+'use client';
+
 import React, { useState } from 'react';
 import { NutriEntity, WeightConfig, TrustScoreResult } from '../types/nutri';
 import { calculateTrustScore } from '../engine/scoring';
 import { extractAllergenWarnings } from '../services/llm';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { SlidersHorizontal, RefreshCw, AlertTriangle, ShieldCheck, Database, CheckCircle2, Sparkles } from 'lucide-react';
 
 interface NutriLabelProps {
   entity: NutriEntity;
   verdictSummary?: string;
   columnDescriptions?: Record<string, string>;
   onWeightChange?: (weights: WeightConfig) => void;
-  onSaveToDataHub?: () => void;
+  onSaveToDataHub?: (weights?: WeightConfig) => void;
   isSaving?: boolean;
 }
 
@@ -65,167 +71,233 @@ export const NutriLabel: React.FC<NutriLabelProps> = ({
     if (onWeightChange) onWeightChange(updated);
   };
 
-  const getScoreBadgeClass = (score: number) => {
-    if (score >= 80) return 'badge-high';
-    if (score >= 70) return 'badge-medium';
-    return 'badge-low';
+  const getScoreBadgeVariant = (score: number) => {
+    if (score >= 80) return 'success';
+    if (score >= 70) return 'warning';
+    return 'danger';
   };
 
   return (
-    <div style={{ padding: '16px' }}>
-      <div className="nutri-label-card">
+    <div className="w-full max-w-xl mx-auto space-y-4 font-sans">
+      {/* Outer FDA Card Wrapper */}
+      <div className="bg-white dark:bg-slate-900 border-[3px] border-black dark:border-slate-700 rounded-xl p-6 shadow-2xl transition-all">
+        
         {/* FDA Header */}
-        <div className="nutri-header">
-          <h1 className="nutri-title">Data Nutrition Facts</h1>
-          <div className="nutri-subtitle">
-            <span>Serving Size: 1 {entity.entityType} ({entity.platform})</span>
-            <span>URN: {entity.name}</span>
+        <div className="border-b-[10px] border-black dark:border-slate-700 pb-3 mb-3">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight text-black dark:text-white font-sans">
+              Data Nutrition Facts
+            </h1>
+            <Badge variant="outline" className="font-mono text-xs uppercase px-2.5 py-1 border-black dark:border-slate-700">
+              {entity.platform}
+            </Badge>
+          </div>
+          <div className="flex justify-between items-center text-xs font-bold text-slate-700 dark:text-slate-300 mt-1">
+            <span>Serving Size: 1 {entity.entityType}</span>
+            <span className="truncate max-w-[200px]" title={entity.name}>Asset: {entity.name}</span>
           </div>
         </div>
 
-        {/* Amount Per Serving / Score */}
-        <div className="nutri-section-score">
-          <div className="nutri-score-row">
-            <span className="nutri-score-label">Trust Score</span>
-            <div className="nutri-score-val">
-              {scoreResult.trustScore}
-              <span className={`nutri-score-badge ${getScoreBadgeClass(scoreResult.trustScore)}`}>
-                {scoreResult.needsAttention ? 'NEEDS ATTENTION' : 'HIGH TRUST'}
+        {/* Amount Per Serving / Score Section */}
+        <div className="border-b-[6px] border-black dark:border-slate-700 py-3 space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+              Overall Trust Score
+            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-4xl sm:text-5xl font-black text-black dark:text-white font-mono">
+                {scoreResult.trustScore}
               </span>
+              <Badge variant={getScoreBadgeVariant(scoreResult.trustScore)} className="text-xs font-extrabold px-3 py-1 uppercase">
+                {scoreResult.needsAttention ? 'NEEDS ATTENTION' : 'HIGH TRUST'}
+              </Badge>
             </div>
           </div>
 
-          {/* Plain-English Verdict Box */}
+          {/* Plain-English AI Verdict Summary Callout */}
           {verdictSummary && (
-            <div className="nutri-verdict-box">
-              "{verdictSummary}"
+            <div className="bg-slate-100 dark:bg-slate-800/80 border-l-4 border-black dark:border-slate-600 p-3 rounded-r-md text-xs sm:text-sm text-slate-900 dark:text-slate-100 italic leading-snug flex items-start gap-2">
+              <Sparkles className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+              <span>"{verdictSummary}"</span>
             </div>
           )}
         </div>
 
-        {/* % Daily Value Sub-Score Breakdown */}
-        <div className="nutri-dv-header">% Daily Value (% DV)*</div>
-
-        <div className="nutri-subscore-row">
-          <div>
-            <span className="nutri-subscore-name">Freshness</span>
-            <div className="nutri-subscore-details">{scoreResult.breakdown.freshnessDetails}</div>
-          </div>
-          <span className="nutri-subscore-val">{scoreResult.subScores.freshness}%</span>
+        {/* % Daily Value Header */}
+        <div className="text-right text-[11px] font-black border-b border-black dark:border-slate-700 py-1.5 text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          % Daily Value (% DV)*
         </div>
 
-        <div className="nutri-subscore-row">
-          <div>
-            <span className="nutri-subscore-name">Completeness</span>
-            <div className="nutri-subscore-details">{scoreResult.breakdown.completenessDetails}</div>
-          </div>
-          <span className="nutri-subscore-val">{scoreResult.subScores.completeness}%</span>
-        </div>
-
-        <div className="nutri-subscore-row">
-          <div>
-            <span className="nutri-subscore-name">Lineage Depth</span>
-            <div className="nutri-subscore-details">{scoreResult.breakdown.lineageDetails}</div>
-          </div>
-          <span className="nutri-subscore-val">{scoreResult.subScores.lineage}%</span>
-        </div>
-
-        <div className="nutri-subscore-row">
-          <div>
-            <span className="nutri-subscore-name">Quality Test Coverage</span>
-            <div className="nutri-subscore-details">{scoreResult.breakdown.testCoverageDetails}</div>
-          </div>
-          <span className="nutri-subscore-val">{scoreResult.subScores.testCoverage}%</span>
-        </div>
-
-        {/* Column Ingredients */}
-        <div className="nutri-ingredients-section">
-          <div className="nutri-ingredients-title">
-            Ingredients ({entity.fields.length} Columns)
-          </div>
-          {entity.fields.slice(0, 8).map((field) => {
-            const desc = columnDescriptions[field.fieldPath] || field.description;
-            const isUndocumented = !desc || desc === 'Undocumented / Needs Description';
-            return (
-              <div key={field.fieldPath} className="nutri-ingredient-item">
-                <span className="nutri-field-name">{field.fieldPath}</span>
-                {isUndocumented ? (
-                  <span className="nutri-undocumented-badge">Undocumented / Needs Description</span>
-                ) : (
-                  <span>{desc}</span>
-                )}
-              </div>
-            );
-          })}
-          {entity.fields.length > 8 && (
-            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>
-              + {entity.fields.length - 8} more columns...
+        {/* Sub-Score Rows */}
+        <div className="divide-y divide-slate-200 dark:divide-slate-800">
+          
+          {/* Freshness */}
+          <div className="py-2.5 flex justify-between items-center">
+            <div>
+              <span className="font-bold text-sm text-black dark:text-white">Freshness</span>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{scoreResult.breakdown.freshnessDetails}</div>
             </div>
-          )}
+            <span className="font-black text-base font-mono text-black dark:text-white">{scoreResult.subScores.freshness}%</span>
+          </div>
+
+          {/* Completeness */}
+          <div className="py-2.5 flex justify-between items-center">
+            <div>
+              <span className="font-bold text-sm text-black dark:text-white">Completeness</span>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{scoreResult.breakdown.completenessDetails}</div>
+            </div>
+            <span className="font-black text-base font-mono text-black dark:text-white">{scoreResult.subScores.completeness}%</span>
+          </div>
+
+          {/* Lineage Depth */}
+          <div className="py-2.5 flex justify-between items-center">
+            <div>
+              <span className="font-bold text-sm text-black dark:text-white">Lineage Depth</span>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{scoreResult.breakdown.lineageDetails}</div>
+            </div>
+            <span className="font-black text-base font-mono text-black dark:text-white">{scoreResult.subScores.lineage}%</span>
+          </div>
+
+          {/* Quality Test Coverage */}
+          <div className="py-2.5 flex justify-between items-center">
+            <div>
+              <span className="font-bold text-sm text-black dark:text-white">Quality Test Coverage</span>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{scoreResult.breakdown.testCoverageDetails}</div>
+            </div>
+            <span className="font-black text-base font-mono text-black dark:text-white">{scoreResult.subScores.testCoverage}%</span>
+          </div>
+
+        </div>
+
+        {/* Column Ingredients Section */}
+        <div className="border-t-[6px] border-black dark:border-slate-700 pt-3 mt-3">
+          <div className="text-xs font-black uppercase tracking-wider text-black dark:text-white mb-2 flex justify-between items-center">
+            <span>Ingredients ({entity.fields.length} Columns)</span>
+            <span className="text-[10px] text-slate-500 font-normal">Grounded Metadata</span>
+          </div>
+          
+          <div className="space-y-1.5 max-h-[220px] overflow-y-auto pr-1">
+            {entity.fields.map((field) => {
+              const desc = columnDescriptions[field.fieldPath] || field.description;
+              const isUndocumented = !desc || desc === 'Undocumented / Needs Description';
+              return (
+                <div key={field.fieldPath} className="text-xs py-1 border-b border-dashed border-slate-200 dark:border-slate-800 flex justify-between items-start gap-2">
+                  <span className="font-mono font-semibold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-900 dark:text-slate-200 shrink-0">
+                    {field.fieldPath}
+                  </span>
+                  {isUndocumented ? (
+                    <span className="text-rose-600 dark:text-rose-400 italic font-bold text-right">
+                      Undocumented / Needs Description
+                    </span>
+                  ) : (
+                    <span className="text-slate-700 dark:text-slate-300 text-right leading-snug">
+                      {desc}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Allergens & Governance Warnings */}
         {warnings.length > 0 && (
-          <div className="nutri-warnings-section">
-            <div className="nutri-warnings-title">⚠️ Allergens & Governance Warnings</div>
+          <div className="mt-4 border-l-4 border-rose-600 bg-rose-50 dark:bg-rose-950/40 p-3 rounded-r-md space-y-1">
+            <div className="text-xs font-black uppercase tracking-wider text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+              <AlertTriangle className="w-4 h-4 text-rose-600" />
+              Allergens & Governance Warnings
+            </div>
             {warnings.map((warn, idx) => (
-              <div key={idx} className="nutri-warning-item">
+              <div key={idx} className="text-xs text-rose-800 dark:text-rose-300 font-semibold flex items-center gap-1.5 pl-1">
                 • {warn}
               </div>
             ))}
           </div>
         )}
 
-        {/* Action Controls */}
-        <div style={{ marginTop: '16px', display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
-          <button
-            className="nutri-preset-btn"
+        {/* Card Action Controls */}
+        <div className="mt-5 pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setShowWeightControls(!showWeightControls)}
+            className="text-xs font-bold border-black dark:border-slate-700 text-black dark:text-white"
           >
-            {showWeightControls ? 'Hide Weighting Methodology' : '⚙️ Adjust Methodology'}
-          </button>
+            <SlidersHorizontal className="w-3.5 h-3.5 mr-1.5" />
+            {showWeightControls ? 'Hide Methodology Sliders' : 'Adjust Weight Methodology'}
+          </Button>
+
           {onSaveToDataHub && (
-            <button
-              className="nutri-preset-btn active"
-              onClick={onSaveToDataHub}
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => onSaveToDataHub(weights)}
               disabled={isSaving}
+              className="text-xs font-bold bg-black hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-black dark:hover:bg-slate-200 shadow-md"
             >
-              {isSaving ? 'Syncing...' : '💾 Sync Score to DataHub'}
-            </button>
+              {isSaving ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  Syncing GMS...
+                </>
+              ) : (
+                <>
+                  <Database className="w-3.5 h-3.5 mr-1.5" />
+                  Sync Score to DataHub
+                </>
+              )}
+            </Button>
           )}
         </div>
+
       </div>
 
-      {/* Interactive Weighting Slider Panel */}
+      {/* Methodology Customization Drawer/Panel */}
       {showWeightControls && (
-        <div className="nutri-controls-card" style={{ maxWidth: '480px', margin: '16px auto 0 auto' }}>
-          <h3 style={{ fontSize: '0.875rem', fontWeight: 800, margin: '0 0 12px 0' }}>
-            Scoring Methodology Presets
-          </h3>
-          <div style={{ display: 'flex', gap: '6px', marginBottom: '16px' }}>
-            <button
-              className={`nutri-preset-btn ${activePreset === 'FDA_STANDARD' ? 'active' : ''}`}
-              onClick={() => handlePresetSelect('FDA_STANDARD')}
-            >
-              FDA Standard (25/25/25/25)
-            </button>
-            <button
-              className={`nutri-preset-btn ${activePreset === 'FRESHNESS_HEAVY' ? 'active' : ''}`}
-              onClick={() => handlePresetSelect('FRESHNESS_HEAVY')}
-            >
-              Freshness Heavy
-            </button>
-            <button
-              className={`nutri-preset-btn ${activePreset === 'GOVERNANCE_HEAVY' ? 'active' : ''}`}
-              onClick={() => handlePresetSelect('GOVERNANCE_HEAVY')}
-            >
-              Governance Heavy
-            </button>
+        <Card className="bg-white dark:bg-slate-900 border-2 border-black dark:border-slate-700 p-4 space-y-4 animate-fade-in shadow-xl">
+          <div className="flex justify-between items-center border-b pb-2">
+            <h3 className="text-sm font-black uppercase tracking-wider text-black dark:text-white flex items-center gap-1.5">
+              <SlidersHorizontal className="w-4 h-4 text-indigo-500" />
+              Scoring Methodology Presets & Sliders
+            </h3>
+            <span className="text-xs text-slate-500 font-medium">Real-Time Recalculation</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem' }}>
-            <div>
-              <span>Freshness Weight: {Math.round(weights.freshnessWeight * 100)}%</span>
+          {/* Preset Buttons */}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={activePreset === 'FDA_STANDARD' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handlePresetSelect('FDA_STANDARD')}
+              className="text-xs font-bold"
+            >
+              FDA Standard (25/25/25/25)
+            </Button>
+            <Button
+              variant={activePreset === 'FRESHNESS_HEAVY' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handlePresetSelect('FRESHNESS_HEAVY')}
+              className="text-xs font-bold"
+            >
+              Freshness Heavy (50/20/15/15)
+            </Button>
+            <Button
+              variant={activePreset === 'GOVERNANCE_HEAVY' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handlePresetSelect('GOVERNANCE_HEAVY')}
+              className="text-xs font-bold"
+            >
+              Governance Heavy (15/50/15/20)
+            </Button>
+          </div>
+
+          {/* Sliders */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+            <div className="space-y-1 bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border">
+              <div className="flex justify-between font-bold text-slate-800 dark:text-slate-200">
+                <span>Freshness Weight</span>
+                <span>{Math.round(weights.freshnessWeight * 100)}%</span>
+              </div>
               <input
                 type="range"
                 min="0"
@@ -233,11 +305,15 @@ export const NutriLabel: React.FC<NutriLabelProps> = ({
                 step="0.05"
                 value={weights.freshnessWeight}
                 onChange={(e) => handleCustomSliderChange('freshnessWeight', parseFloat(e.target.value))}
-                style={{ width: '100%' }}
+                className="w-full accent-black dark:accent-white cursor-pointer"
               />
             </div>
-            <div>
-              <span>Completeness Weight: {Math.round(weights.completenessWeight * 100)}%</span>
+
+            <div className="space-y-1 bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border">
+              <div className="flex justify-between font-bold text-slate-800 dark:text-slate-200">
+                <span>Completeness Weight</span>
+                <span>{Math.round(weights.completenessWeight * 100)}%</span>
+              </div>
               <input
                 type="range"
                 min="0"
@@ -245,11 +321,15 @@ export const NutriLabel: React.FC<NutriLabelProps> = ({
                 step="0.05"
                 value={weights.completenessWeight}
                 onChange={(e) => handleCustomSliderChange('completenessWeight', parseFloat(e.target.value))}
-                style={{ width: '100%' }}
+                className="w-full accent-black dark:accent-white cursor-pointer"
               />
             </div>
-            <div>
-              <span>Lineage Weight: {Math.round(weights.lineageWeight * 100)}%</span>
+
+            <div className="space-y-1 bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border">
+              <div className="flex justify-between font-bold text-slate-800 dark:text-slate-200">
+                <span>Lineage Weight</span>
+                <span>{Math.round(weights.lineageWeight * 100)}%</span>
+              </div>
               <input
                 type="range"
                 min="0"
@@ -257,11 +337,15 @@ export const NutriLabel: React.FC<NutriLabelProps> = ({
                 step="0.05"
                 value={weights.lineageWeight}
                 onChange={(e) => handleCustomSliderChange('lineageWeight', parseFloat(e.target.value))}
-                style={{ width: '100%' }}
+                className="w-full accent-black dark:accent-white cursor-pointer"
               />
             </div>
-            <div>
-              <span>Test Coverage Weight: {Math.round(weights.testCoverageWeight * 100)}%</span>
+
+            <div className="space-y-1 bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border">
+              <div className="flex justify-between font-bold text-slate-800 dark:text-slate-200">
+                <span>Test Coverage Weight</span>
+                <span>{Math.round(weights.testCoverageWeight * 100)}%</span>
+              </div>
               <input
                 type="range"
                 min="0"
@@ -269,11 +353,11 @@ export const NutriLabel: React.FC<NutriLabelProps> = ({
                 step="0.05"
                 value={weights.testCoverageWeight}
                 onChange={(e) => handleCustomSliderChange('testCoverageWeight', parseFloat(e.target.value))}
-                style={{ width: '100%' }}
+                className="w-full accent-black dark:accent-white cursor-pointer"
               />
             </div>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

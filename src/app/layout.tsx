@@ -1,8 +1,9 @@
 import React from 'react';
+import './globals.css';
 import '../styles/nutri-label.css';
 
 export const metadata = {
-  title: 'Nutri - DataHub Trust Score & Nutrition Label Generator',
+  title: 'Nutri — Standardized Data Nutrition Facts & Trust Score Platform',
   description: 'A nutrition-label-style Trust Score generator for DataHub catalog entities.',
 };
 
@@ -12,8 +13,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body style={{ margin: 0, padding: 0, backgroundColor: '#f8fafc', color: '#0f172a', fontFamily: 'Inter, sans-serif' }}>
+    <html lang="en" className="dark">
+      <body className="bg-slate-950 text-slate-100 font-sans antialiased">
         {children}
       </body>
     </html>
