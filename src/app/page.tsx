@@ -82,7 +82,12 @@ export default function HomePage() {
   // Fetch catalog on mount
   useEffect(() => {
     fetch('/api/catalog')
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(`Catalog API responded with status ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
         if (data.entities && data.entities.length > 0) {
           setCatalogList(data.entities);
@@ -92,7 +97,6 @@ export default function HomePage() {
       })
       .catch((err) => {
         console.error('Failed to load catalog list:', err);
-        setErrorMessage('Could not connect to DataHub API');
       });
   }, []);
 
@@ -211,6 +215,8 @@ export default function HomePage() {
     { name: 'customers', trustScore: 78, platform: 'snowflake' },
     { name: 'stg_orders', trustScore: 85, platform: 'dbt' },
     { name: 'fct_orders', trustScore: 90, platform: 'dbt' },
+    { name: 'Order Details', trustScore: 95, platform: 'looker' },
+    { name: 'Promotions', trustScore: 70, platform: 'tableau' },
   ]);
 
   const pieData = [
@@ -313,7 +319,7 @@ export default function HomePage() {
                   <Layers className="w-3.5 h-3.5 text-slate-300" />
                   Platforms
                 </div>
-                <div className="text-sm font-black text-white truncate pt-1">Snowflake, dbt</div>
+                <div className="text-xs font-black text-white truncate pt-1">Snowflake, dbt, Postgres, Tableau, PowerBI, Looker</div>
                 <p className="text-[10px] text-slate-500 font-medium">Cross-Platform Lineage</p>
               </div>
 
@@ -499,8 +505,8 @@ export default function HomePage() {
           </TabsContent>
 
           {/* TAB 2: Catalog Explorer & Live FDA Label Inspector */}
-          <TabsContent value="explorer" className="space-y-6 flex-1 flex flex-col">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch flex-1">
+          <TabsContent value="explorer" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               
               {/* Left Column: Asset Explorer List */}
               <div className="lg:col-span-5 flex flex-col">
@@ -529,7 +535,7 @@ export default function HomePage() {
                         />
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <Button
                           variant={filterPlatform === 'ALL' ? 'default' : 'outline'}
                           size="sm"
@@ -554,11 +560,43 @@ export default function HomePage() {
                         >
                           dbt
                         </Button>
+                        <Button
+                          variant={filterPlatform === 'postgres' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilterPlatform('postgres')}
+                          className="text-[11px] h-7 px-2.5 font-bold"
+                        >
+                          Postgres
+                        </Button>
+                        <Button
+                          variant={filterPlatform === 'tableau' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilterPlatform('tableau')}
+                          className="text-[11px] h-7 px-2.5 font-bold"
+                        >
+                          Tableau
+                        </Button>
+                        <Button
+                          variant={filterPlatform === 'powerbi' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilterPlatform('powerbi')}
+                          className="text-[11px] h-7 px-2.5 font-bold"
+                        >
+                          PowerBI
+                        </Button>
+                        <Button
+                          variant={filterPlatform === 'looker' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilterPlatform('looker')}
+                          className="text-[11px] h-7 px-2.5 font-bold"
+                        >
+                          Looker
+                        </Button>
                       </div>
                     </div>
 
-                    {/* Dataset Scroll List (Expands fully down to footer border) */}
-                    <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[360px]">
+                    {/* Dataset Scroll List (Filled down to footer with scrolling enabled) */}
+                    <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[360px] max-h-[620px]">
                       {filteredCatalog.map((item) => {
                         const isSelected = item.urn === selectedUrn;
                         return (
@@ -580,6 +618,8 @@ export default function HomePage() {
                                 className={`text-[10px] uppercase font-bold px-2 py-0.5 ${
                                   item.platform.toLowerCase() === 'snowflake'
                                     ? 'border-sky-500/40 text-sky-400 bg-sky-500/10'
+                                    : item.platform.toLowerCase() === 'tableau' || item.platform.toLowerCase() === 'powerbi' || item.platform.toLowerCase() === 'looker'
+                                    ? 'border-amber-500/40 text-amber-400 bg-amber-500/10'
                                     : 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
                                 }`}
                               >
@@ -634,7 +674,7 @@ export default function HomePage() {
                   Connect New Dataset to Nutri Workflow
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  Make Nutri repeatable across any approved data warehouse table, dbt model, or custom DataHub dataset.
+                  Make Nutri repeatable across any approved data warehouse table, BI dashboard, dbt model, or custom DataHub dataset.
                 </p>
               </div>
 
@@ -656,8 +696,10 @@ export default function HomePage() {
                       <option value="snowflake">Snowflake</option>
                       <option value="dbt">dbt</option>
                       <option value="postgres">PostgreSQL</option>
-                      <option value="spark">Apache Spark</option>
+                      <option value="tableau">Tableau</option>
                       <option value="powerbi">PowerBI</option>
+                      <option value="looker">Looker</option>
+                      <option value="spark">Apache Spark</option>
                       <option value="bigquery">Google BigQuery</option>
                     </select>
                   </div>

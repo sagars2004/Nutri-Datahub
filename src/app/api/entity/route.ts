@@ -3,6 +3,8 @@ import { fetchNutriEntity, writeTrustScoreToDataHub } from '../../../services/da
 import { calculateTrustScore } from '../../../engine/scoring';
 import { generateScoreSummary, generateColumnDescriptions } from '../../../services/llm';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const urn = searchParams.get('urn');
