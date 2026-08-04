@@ -51,7 +51,7 @@ const config: Config = {
       },
       animation: {
         'border-beam': 'border-beam calc(var(--duration)*1s) infinite linear',
-        'fade-in': 'fade-in 0.5s ease-out forwards',
+        'fade-in': 'fade-in 0.4s ease-out forwards',
         'pulse-subtle': 'pulse-subtle 2s infinite ease-in-out',
       },
       keyframes: {
@@ -61,12 +61,12 @@ const config: Config = {
           },
         },
         'fade-in': {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         'pulse-subtle': {
           '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.7' },
+          '50%': { opacity: '0.75' },
         },
       },
     },

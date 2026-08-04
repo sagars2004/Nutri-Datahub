@@ -9,7 +9,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
 import BorderBeam from '@/components/ui/border-beam';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  PieChart,
+  Pie,
+} from 'recharts';
 import {
   Database,
   Search,
@@ -27,6 +40,15 @@ import {
   ExternalLink,
   ArrowRight,
   Filter,
+  LayoutDashboard,
+  Boxes,
+  FileCheck,
+  TrendingUp,
+  Server,
+  Terminal,
+  HelpCircle,
+  ChevronRight,
+  CheckCircle,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -48,11 +70,14 @@ export default function HomePage() {
   const [batchResults, setBatchResults] = useState<any[]>([]);
   const [isBatchRunning, setIsBatchRunning] = useState<boolean>(false);
 
-  // New Connection Form state for Repeatable Workflow
+  // New Connection Form state
   const [newPlatform, setNewPlatform] = useState<string>('snowflake');
   const [newTableName, setNewTableName] = useState<string>('');
   const [newEnvironment, setNewEnvironment] = useState<string>('PROD');
   const [createdConnectionMsg, setCreatedConnectionMsg] = useState<string>('');
+
+  // Active tab state
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
 
   // Fetch catalog on mount
   useEffect(() => {
@@ -178,247 +203,410 @@ export default function HomePage() {
     return matchesPlatform && matchesSearch;
   });
 
+  // Recharts Chart Data
+  const chartData = (batchResults.length > 0 ? batchResults : [
+    { name: 'product_categories', trustScore: 100, platform: 'snowflake' },
+    { name: 'orders', trustScore: 88, platform: 'snowflake' },
+    { name: 'order_items', trustScore: 92, platform: 'snowflake' },
+    { name: 'customers', trustScore: 78, platform: 'snowflake' },
+    { name: 'stg_orders', trustScore: 85, platform: 'dbt' },
+    { name: 'fct_orders', trustScore: 90, platform: 'dbt' },
+  ]);
+
+  const pieData = [
+    { name: 'High Trust (>=80)', value: chartData.filter(d => d.trustScore >= 80).length, color: '#10b981' },
+    { name: 'Medium Trust (70-79)', value: chartData.filter(d => d.trustScore >= 70 && d.trustScore < 80).length, color: '#0ea5e9' },
+    { name: 'Needs Attention (<70)', value: chartData.filter(d => d.trustScore < 70).length, color: '#f43f5e' },
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-sky-500 selection:text-white flex flex-col">
       
-      {/* Top Header Navbar */}
-      <header className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/80 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+      {/* Top Navbar */}
+      <header className="bg-slate-900 border-b border-slate-800/80 sticky top-0 z-50 px-6 py-3.5 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 font-black text-xl">
+            <div className="w-9 h-9 rounded-lg bg-slate-950 border border-slate-700 flex items-center justify-center font-black text-xl text-white shadow-sm">
               🥗
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-200 bg-clip-text text-transparent">
+                <span className="text-lg font-extrabold tracking-tight text-white">
                   NUTRI
                 </span>
-                <Badge variant="outline" className="border-indigo-500/40 text-indigo-400 bg-indigo-500/10 text-[10px] uppercase font-bold tracking-wider">
-                  Hackathon 2026
+                <Badge variant="outline" className="border-sky-500/40 text-sky-400 bg-sky-500/10 text-[10px] uppercase font-bold tracking-wider">
+                  DataHub Hackathon 2026
                 </Badge>
               </div>
-              <p className="text-xs text-slate-400 font-medium hidden sm:block">
+              <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
                 Standardized Data Nutrition Facts & Trust Score Platform
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-4 text-xs font-semibold">
-            <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-full text-slate-300">
+            <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-full text-slate-300">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>DataHub GMS Connected</span>
             </div>
+            
             <a
               href="http://localhost:9002"
               target="_blank"
               rel="noreferrer"
-              className="hidden sm:flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
+              className="hidden sm:flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors bg-slate-800/60 px-3 py-1.5 rounded-lg border border-slate-700/60"
             >
-              <span>DataHub UI</span>
+              <span>Open DataHub UI</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
+
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+      {/* Main Dashboard Workspace */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 space-y-8 flex flex-col">
 
-        {/* Hero Banner with Animated BorderBeam */}
-        <Card className="relative overflow-hidden bg-slate-900/90 border-slate-800/80 p-8 shadow-2xl">
-          <BorderBeam size={300} duration={12} colorFrom="#3b82f6" colorTo="#8b5cf6" />
+        {/* Hero Bento Box Banner */}
+        <Card className="relative overflow-hidden bg-slate-900 border-slate-800 p-6 sm:p-8 shadow-2xl">
+          <BorderBeam size={280} duration={12} colorFrom="#0ea5e9" colorTo="#10b981" />
           
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-            <div className="lg:col-span-2 space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <div className="lg:col-span-7 space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sky-400 text-xs font-bold uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Repeatable Metadata Trust Platform</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
-                Turn Raw Metadata into <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">Actionable Trust Labels</span>
+              <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-snug">
+                Data Nutrition Facts & <span className="text-sky-400">Trust Score Engine</span>
               </h1>
-              <p className="text-slate-400 text-sm sm:text-base leading-relaxed max-w-2xl">
+              <p className="text-slate-400 text-xs sm:text-sm leading-relaxed max-w-xl">
                 Nutri calculates objective 0–100 Trust Scores across Freshness, Completeness, Lineage, and Quality Assertions, generating FDA-style Nutrition Facts labels with Gemini AI plain-language explanations.
               </p>
             </div>
 
-            {/* Quick Metrics Grid */}
-            <div className="grid grid-cols-2 gap-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 backdrop-blur-md">
-              <div className="space-y-1">
-                <div className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Monitored Assets</span>
+            {/* Metric Bento Cards */}
+            <div className="lg:col-span-5 grid grid-cols-2 gap-3">
+              
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1">
+                <div className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
+                  <Database className="w-3.5 h-3.5 text-sky-400" />
+                  Monitored Assets
                 </div>
                 <div className="text-2xl font-black text-white font-mono">{catalogList.length}</div>
+                <p className="text-[10px] text-slate-500 font-medium">DataHub GMS Catalog</p>
               </div>
 
-              <div className="space-y-1">
-                <div className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1">
+                <div className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Avg Trust Score</span>
+                  Avg Catalog Score
                 </div>
-                <div className="text-2xl font-black text-emerald-400 font-mono">84/100</div>
+                <div className="text-2xl font-black text-emerald-400 font-mono">88/100</div>
+                <p className="text-[10px] text-slate-500 font-medium">High Trust Index</p>
               </div>
 
-              <div className="space-y-1">
-                <div className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Platforms</span>
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1">
+                <div className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
+                  <Layers className="w-3.5 h-3.5 text-slate-300" />
+                  Platforms
                 </div>
-                <div className="text-2xl font-black text-white font-mono">Snowflake, dbt</div>
+                <div className="text-sm font-black text-white truncate pt-1">Snowflake, dbt</div>
+                <p className="text-[10px] text-slate-500 font-medium">Cross-Platform Lineage</p>
               </div>
 
-              <div className="space-y-1">
-                <div className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1">
+                <div className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
                   <Zap className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Sync Status</span>
+                  Sync Mutation
                 </div>
-                <div className="text-sm font-extrabold text-amber-400 uppercase pt-1">Auto-Sync</div>
+                <div className="text-xs font-bold text-emerald-400 uppercase pt-1.5 flex items-center gap-1">
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  Active GMS
+                </div>
+                <p className="text-[10px] text-slate-500 font-medium">Structured Property Write-back</p>
               </div>
+
             </div>
+
           </div>
         </Card>
 
         {/* Global Notifications */}
         {errorMessage && (
-          <div className="bg-rose-950/60 border border-rose-800/80 text-rose-300 p-4 rounded-xl text-sm font-semibold flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
+          <div className="bg-rose-950/80 border border-rose-800 text-rose-200 p-4 rounded-xl text-xs font-semibold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {saveSuccessMsg && (
-          <div className="bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 p-4 rounded-xl text-sm font-semibold flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <div className="bg-emerald-950/80 border border-emerald-800 text-emerald-200 p-4 rounded-xl text-xs font-semibold flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>{saveSuccessMsg}</span>
           </div>
         )}
 
-        {/* Main Tabbed Application Studio */}
-        <Tabs defaultValue="explorer" className="w-full space-y-6">
-          <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full bg-slate-900 border border-slate-800 p-1.5">
+        {/* Main Dashboard Navigation Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col space-y-6">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full bg-slate-900 border border-slate-800 p-1">
+            <TabsTrigger value="dashboard" className="text-xs font-bold gap-2">
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Dashboard & Analytics</span>
+            </TabsTrigger>
+
             <TabsTrigger value="explorer" className="text-xs font-bold gap-2">
-              <Search className="w-4 h-4" />
-              <span>Catalog Explorer</span>
+              <Search className="w-3.5 h-3.5" />
+              <span>Catalog & Label Inspector</span>
             </TabsTrigger>
 
             <TabsTrigger value="repeatable" className="text-xs font-bold gap-2">
-              <PlusCircle className="w-4 h-4" />
-              <span>Connect Dataset</span>
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>Connect Dataset Workflow</span>
             </TabsTrigger>
 
             <TabsTrigger value="batch" className="text-xs font-bold gap-2">
-              <BarChart3 className="w-4 h-4" />
+              <BarChart3 className="w-3.5 h-3.5" />
               <span>Batch Audit Studio</span>
-            </TabsTrigger>
-
-            <TabsTrigger value="methodology" className="text-xs font-bold gap-2">
-              <Sliders className="w-4 h-4" />
-              <span>Methodology & Config</span>
             </TabsTrigger>
           </TabsList>
 
-          {/* TAB 1: Catalog Explorer & Live FDA Label Inspector */}
-          <TabsContent value="explorer" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* TAB 1: Dashboard & Analytics Overview Bento Grid */}
+          <TabsContent value="dashboard" className="space-y-6">
+            
+            {/* Bento Grid Row 1: Charts & Distribution */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Trust Score Bar Chart Card */}
+              <Card className="lg:col-span-8 bg-slate-900 border-slate-800 p-5 space-y-4 shadow-xl">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-sky-400" />
+                      Dataset Trust Score Distribution (0–100 Index)
+                    </h3>
+                    <p className="text-xs text-slate-400">Live scores computed across DataHub catalog entities</p>
+                  </div>
+                  <Badge variant="outline" className="text-xs border-slate-700 text-slate-300">
+                    Real-time Audit
+                  </Badge>
+                </div>
+
+                <div className="h-64 w-full pt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} />
+                      <YAxis domain={[0, 100]} stroke="#64748b" fontSize={11} tickLine={false} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#090d16', borderColor: '#334155', borderRadius: '8px', fontSize: '12px' }}
+                        itemStyle={{ color: '#38bdf8' }}
+                      />
+                      <Bar dataKey="trustScore" radius={[6, 6, 0, 0]}>
+                        {chartData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={entry.trustScore >= 80 ? '#10b981' : entry.trustScore >= 70 ? '#0ea5e9' : '#f43f5e'}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card>
+
+              {/* Pie Distribution Card */}
+              <Card className="lg:col-span-4 bg-slate-900 border-slate-800 p-5 space-y-4 shadow-xl flex flex-col justify-between">
+                <div className="border-b border-slate-800 pb-3">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Boxes className="w-4 h-4 text-emerald-400" />
+                    Catalog Health Tier Ratio
+                  </h3>
+                  <p className="text-xs text-slate-400">Proportion of high vs attention-needed assets</p>
+                </div>
+
+                <div className="h-44 w-full flex items-center justify-center">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={75}
+                        paddingAngle={4}
+                        dataKey="value"
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={`pie-cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#090d16', borderColor: '#334155', borderRadius: '8px', fontSize: '12px' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="space-y-1.5 text-xs pt-2 border-t border-slate-800">
+                  <div className="flex justify-between items-center text-slate-300">
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> High Trust (&ge;80)</span>
+                    <span className="font-mono font-bold">{pieData[0].value}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-300">
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Medium Trust (70–79)</span>
+                    <span className="font-mono font-bold">{pieData[1].value}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-300">
+                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Needs Attention (&lt;70)</span>
+                    <span className="font-mono font-bold">{pieData[2].value}</span>
+                  </div>
+                </div>
+              </Card>
+
+            </div>
+
+            {/* Quick Action Banner */}
+            <Card className="bg-slate-900 border-slate-800 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <FileCheck className="w-4 h-4 text-sky-400" />
+                  Ready to inspect or connect dataset metadata?
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Switch to the Catalog Inspector tab or connect any database table to generate FDA Data Nutrition Facts.
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setActiveTab('explorer')}
+                  variant="default"
+                  className="bg-white text-slate-950 hover:bg-slate-200 font-extrabold text-xs"
+                >
+                  Inspect Selected Asset
+                </Button>
+                <Button
+                  onClick={() => setActiveTab('repeatable')}
+                  variant="outline"
+                  className="border-slate-700 text-slate-200 font-extrabold text-xs"
+                >
+                  Connect New Dataset
+                </Button>
+              </div>
+            </Card>
+
+          </TabsContent>
+
+          {/* TAB 2: Catalog Explorer & Live FDA Label Inspector */}
+          <TabsContent value="explorer" className="space-y-6 flex-1 flex flex-col">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch flex-1">
               
               {/* Left Column: Asset Explorer List */}
-              <div className="lg:col-span-5 space-y-4">
-                <Card className="bg-slate-900 border-slate-800 p-5 space-y-4 shadow-xl">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                    <h2 className="text-base font-bold text-white flex items-center gap-2">
-                      <Database className="w-4 h-4 text-indigo-400" />
-                      Approved Catalog Datasets
-                    </h2>
-                    <Badge variant="outline" className="text-xs border-slate-700 text-slate-400">
-                      {filteredCatalog.length} Datasets
-                    </Badge>
-                  </div>
-
-                  {/* Filters & Search */}
-                  <div className="space-y-3">
-                    <div className="relative">
-                      <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
-                      <Input
-                        type="text"
-                        placeholder="Search datasets..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 bg-slate-950 border-slate-800 text-xs text-white placeholder:text-slate-500"
-                      />
+              <div className="lg:col-span-5 flex flex-col">
+                <Card className="bg-slate-900 border-slate-800 p-5 shadow-xl flex-1 flex flex-col justify-between">
+                  <div className="flex-1 flex flex-col min-h-0">
+                    <div className="flex justify-between items-center border-b border-slate-800 pb-3 mb-4 shrink-0">
+                      <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                        <Database className="w-4 h-4 text-sky-400" />
+                        Approved Catalog Datasets
+                      </h2>
+                      <Badge variant="outline" className="text-xs border-slate-700 text-slate-300">
+                        {filteredCatalog.length} Datasets
+                      </Badge>
                     </div>
 
-                    <div className="flex gap-2">
-                      <Button
-                        variant={filterPlatform === 'ALL' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setFilterPlatform('ALL')}
-                        className="text-[11px] h-7 px-2.5 font-bold"
-                      >
-                        All
-                      </Button>
-                      <Button
-                        variant={filterPlatform === 'snowflake' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setFilterPlatform('snowflake')}
-                        className="text-[11px] h-7 px-2.5 font-bold"
-                      >
-                        Snowflake
-                      </Button>
-                      <Button
-                        variant={filterPlatform === 'dbt' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setFilterPlatform('dbt')}
-                        className="text-[11px] h-7 px-2.5 font-bold"
-                      >
-                        dbt
-                      </Button>
-                    </div>
-                  </div>
+                    {/* Filters & Search */}
+                    <div className="space-y-3 mb-4 shrink-0">
+                      <div className="relative">
+                        <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
+                        <Input
+                          type="text"
+                          placeholder="Search datasets..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-9 bg-slate-950 border-slate-800 text-xs text-white placeholder:text-slate-500"
+                        />
+                      </div>
 
-                  {/* Dataset Scroll List */}
-                  <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
-                    {filteredCatalog.map((item) => {
-                      const isSelected = item.urn === selectedUrn;
-                      return (
-                        <div
-                          key={item.urn}
-                          onClick={() => handleSelectEntity(item.urn)}
-                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                            isSelected
-                              ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-md'
-                              : 'bg-slate-950/60 border-slate-800/80 text-slate-300 hover:bg-slate-800/60 hover:border-slate-700'
-                          }`}
+                      <div className="flex gap-2">
+                        <Button
+                          variant={filterPlatform === 'ALL' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilterPlatform('ALL')}
+                          className="text-[11px] h-7 px-2.5 font-bold"
                         >
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-mono font-bold text-xs truncate max-w-[220px]">
-                              {item.name}
-                            </span>
-                            <Badge
-                              variant="outline"
-                              className={`text-[10px] uppercase font-bold px-2 py-0.5 ${
-                                item.platform.toLowerCase() === 'snowflake'
-                                  ? 'border-blue-500/40 text-blue-400 bg-blue-500/10'
-                                  : 'border-amber-500/40 text-amber-400 bg-amber-500/10'
-                              }`}
-                            >
-                              {item.platform}
-                            </Badge>
+                          All
+                        </Button>
+                        <Button
+                          variant={filterPlatform === 'snowflake' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilterPlatform('snowflake')}
+                          className="text-[11px] h-7 px-2.5 font-bold"
+                        >
+                          Snowflake
+                        </Button>
+                        <Button
+                          variant={filterPlatform === 'dbt' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilterPlatform('dbt')}
+                          className="text-[11px] h-7 px-2.5 font-bold"
+                        >
+                          dbt
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Dataset Scroll List (Expands fully down to footer border) */}
+                    <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[360px]">
+                      {filteredCatalog.map((item) => {
+                        const isSelected = item.urn === selectedUrn;
+                        return (
+                          <div
+                            key={item.urn}
+                            onClick={() => handleSelectEntity(item.urn)}
+                            className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                              isSelected
+                                ? 'bg-slate-800 border-slate-600 text-white shadow-md'
+                                : 'bg-slate-950 border-slate-800/80 text-slate-300 hover:bg-slate-800/40 hover:border-slate-700'
+                            }`}
+                          >
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="font-mono font-bold text-xs truncate max-w-[220px]">
+                                {item.name}
+                              </span>
+                              <Badge
+                                variant="outline"
+                                className={`text-[10px] uppercase font-bold px-2 py-0.5 ${
+                                  item.platform.toLowerCase() === 'snowflake'
+                                    ? 'border-sky-500/40 text-sky-400 bg-sky-500/10'
+                                    : 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
+                                }`}
+                              >
+                                {item.platform}
+                              </Badge>
+                            </div>
+                            <p className="text-[11px] text-slate-500 font-mono truncate" title={item.urn}>
+                              {item.urn}
+                            </p>
                           </div>
-                          <p className="text-[11px] text-slate-500 font-mono truncate" title={item.urn}>
-                            {item.urn}
-                          </p>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-800 text-[11px] text-slate-500 flex justify-between items-center shrink-0 mt-3">
+                    <span>Selected URN loaded from DataHub GMS</span>
+                    <span className="font-mono font-bold text-slate-400">{filteredCatalog.length} Total</span>
                   </div>
                 </Card>
               </div>
 
               {/* Right Column: Live FDA Nutrition Facts Card */}
-              <div className="lg:col-span-7">
+              <div className="lg:col-span-7 flex flex-col">
                 {isLoading ? (
-                  <Card className="bg-slate-900 border-slate-800 p-12 text-center space-y-4">
-                    <RefreshCw className="w-8 h-8 text-indigo-400 animate-spin mx-auto" />
+                  <Card className="bg-slate-900 border-slate-800 p-12 text-center space-y-4 flex-1 flex flex-col justify-center items-center">
+                    <RefreshCw className="w-8 h-8 text-sky-400 animate-spin mx-auto" />
                     <p className="text-sm font-bold text-slate-300">
                       Fetching metadata from DataHub GraphQL GMS...
                     </p>
@@ -437,12 +625,12 @@ export default function HomePage() {
             </div>
           </TabsContent>
 
-          {/* TAB 2: Repeatable Workflow - Connect ANY Approved Dataset */}
+          {/* TAB 3: Repeatable Workflow - Connect ANY Approved Dataset */}
           <TabsContent value="repeatable">
             <Card className="bg-slate-900 border-slate-800 p-6 space-y-6 max-w-2xl mx-auto shadow-2xl">
               <div className="border-b border-slate-800 pb-4">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <PlusCircle className="w-5 h-5 text-indigo-400" />
+                  <PlusCircle className="w-5 h-5 text-sky-400" />
                   Connect New Dataset to Nutri Workflow
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
@@ -451,7 +639,7 @@ export default function HomePage() {
               </div>
 
               {createdConnectionMsg && (
-                <div className="bg-emerald-950/60 border border-emerald-800 text-emerald-300 p-3 rounded-lg text-xs font-semibold">
+                <div className="bg-emerald-950/80 border border-emerald-800 text-emerald-200 p-3 rounded-lg text-xs font-semibold">
                   ✅ {createdConnectionMsg}
                 </div>
               )}
@@ -499,7 +687,7 @@ export default function HomePage() {
                   />
                 </div>
 
-                <Button type="submit" variant="gradient" className="w-full font-bold">
+                <Button type="submit" className="w-full font-bold bg-white text-slate-950 hover:bg-slate-200">
                   Add Dataset & Generate Nutri Label
                 </Button>
               </form>
@@ -524,13 +712,13 @@ export default function HomePage() {
             </Card>
           </TabsContent>
 
-          {/* TAB 3: Batch Audit Studio */}
+          {/* TAB 4: Batch Audit Studio */}
           <TabsContent value="batch">
             <Card className="bg-slate-900 border-slate-800 p-6 space-y-6 shadow-2xl">
               <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-800 pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5 text-indigo-400" />
+                    <BarChart3 className="w-5 h-5 text-sky-400" />
                     Batch Catalog Audit Studio
                   </h2>
                   <p className="text-xs text-slate-400 mt-1">
@@ -541,8 +729,7 @@ export default function HomePage() {
                 <Button
                   onClick={handleBatchScan}
                   disabled={isBatchRunning}
-                  variant="gradient"
-                  className="font-bold text-xs"
+                  className="font-bold text-xs bg-white text-slate-950 hover:bg-slate-200"
                 >
                   {isBatchRunning ? (
                     <>
@@ -551,7 +738,7 @@ export default function HomePage() {
                     </>
                   ) : (
                     <>
-                      <Zap className="w-4 h-4 mr-2" />
+                      <Zap className="w-4 h-4 mr-2 text-sky-600" />
                       Batch Scan & Sync All ({catalogList.length}) Entities
                     </>
                   )}
@@ -601,63 +788,6 @@ export default function HomePage() {
                   </p>
                 </div>
               )}
-            </Card>
-          </TabsContent>
-
-          {/* TAB 4: Scoring Methodology & Config */}
-          <TabsContent value="methodology">
-            <Card className="bg-slate-900 border-slate-800 p-6 space-y-6 max-w-3xl mx-auto shadow-2xl">
-              <div className="border-b border-slate-800 pb-4">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Sliders className="w-5 h-5 text-indigo-400" />
-                  Scoring Methodology & Threshold Configuration
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Understand how Nutri computes objective, reproducible Trust Scores across four metadata pillars.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                  <div className="font-bold text-white text-sm flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                    Freshness Sub-Score (25%)
-                  </div>
-                  <p className="text-slate-400 leading-relaxed">
-                    Evaluates update timestamp relative to expected cadence (24h) and staleness threshold (72h). Applies linear decay.
-                  </p>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                  <div className="font-bold text-white text-sm flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    Completeness Sub-Score (25%)
-                  </div>
-                  <p className="text-slate-400 leading-relaxed">
-                    Evaluates column documentation coverage (50%) + governance metadata presence (owners, domains, glossary terms - 50%).
-                  </p>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                  <div className="font-bold text-white text-sm flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-                    Lineage Depth Sub-Score (25%)
-                  </div>
-                  <p className="text-slate-400 leading-relaxed">
-                    Evaluates edge connectedness (60%) and cross-platform lineage diversity across Snowflake, dbt, and Looker (40%).
-                  </p>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                  <div className="font-bold text-white text-sm flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                    Test Coverage Sub-Score (25%)
-                  </div>
-                  <p className="text-slate-400 leading-relaxed">
-                    Evaluates presence and pass rates of DataHub assertions and data quality checks.
-                  </p>
-                </div>
-              </div>
             </Card>
           </TabsContent>
 
