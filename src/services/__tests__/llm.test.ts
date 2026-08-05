@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import {
   generateScoreSummary,
   generateColumnDescriptions,
   extractAllergenWarnings,
+  getLlmConfig,
 } from '../llm';
 import { NutriEntity, TrustScoreResult } from '../../types/nutri';
 
@@ -83,6 +84,43 @@ describe('LLM Plain-Language & Warning Layer Unit Tests', () => {
       const descriptions = await generateColumnDescriptions(testEntity);
       expect(descriptions['customer_email']).toBe('Customer email address');
       expect(descriptions['internal_code']).toBe('Undocumented / Needs Description');
+    });
+  });
+
+  describe('getLlmConfig', () => {
+    const originalEnv = { ...process.env };
+
+    afterEach(() => {
+      process.env = { ...originalEnv };
+    });
+
+    it('identifies GMI Cloud provider when GMI_API_KEY is present', () => {
+      process.env.GMI_API_KEY = 'gmi-test-key-123';
+      const config = getLlmConfig();
+      expect(config.provider).toBe('gmi');
+      expect(config.apiKey).toBe('gmi-test-key-123');
+      expect(config.baseUrl).toBe('https://api.gmicloud.ai/v1');
+      expect(config.model).toBe('meta-llama/Meta-Llama-3.1-70B-Instruct');
+    });
+
+    it('allows custom GMI model and base URL override', () => {
+      process.env.GMI_API_KEY = 'gmi-test-key-123';
+      process.env.GMI_BASE_URL = 'https://custom.gmicloud.ai/v1';
+      process.env.GMI_MODEL = 'Qwen/Qwen2.5-72B-Instruct';
+      const config = getLlmConfig();
+      expect(config.baseUrl).toBe('https://custom.gmicloud.ai/v1');
+      expect(config.model).toBe('Qwen/Qwen2.5-72B-Instruct');
+    });
+
+    it('falls back to none when no keys are provided', () => {
+      delete process.env.GMI_API_KEY;
+      delete process.env.GMICLOUD_API_KEY;
+      delete process.env.OPENAI_API_KEY;
+      delete process.env.LLM_API_KEY;
+      delete process.env.GEMINI_API_KEY;
+      const config = getLlmConfig();
+      expect(config.provider).toBe('none');
+      expect(config.apiKey).toBe('');
     });
   });
 

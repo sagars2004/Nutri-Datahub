@@ -4,10 +4,11 @@ import React, { useState } from 'react';
 import { NutriEntity, WeightConfig, TrustScoreResult } from '../types/nutri';
 import { calculateTrustScore } from '../engine/scoring';
 import { extractAllergenWarnings } from '../services/llm';
+import { DataHubContractEngine, DataContractReport } from '../services/contracts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { SlidersHorizontal, RefreshCw, AlertTriangle, Database, Sparkles, CheckCircle } from 'lucide-react';
+import { SlidersHorizontal, RefreshCw, AlertTriangle, Database, Sparkles, ShieldCheck, ShieldAlert, ChevronDown, ChevronUp, FileText, Share2, Copy, Check, X } from 'lucide-react';
 
 interface NutriLabelProps {
   entity: NutriEntity;
@@ -53,9 +54,32 @@ export const NutriLabel: React.FC<NutriLabelProps> = ({
   const [weights, setWeights] = useState<WeightConfig>(PRESETS.FDA_STANDARD);
   const [activePreset, setActivePreset] = useState<string>('FDA_STANDARD');
   const [showWeightControls, setShowWeightControls] = useState<boolean>(false);
+  const [showContracts, setShowContracts] = useState<boolean>(false);
+  const [showEmbedCode, setShowEmbedCode] = useState<boolean>(false);
+  const [copiedEmbed, setCopiedEmbed] = useState<boolean>(false);
+  const [copiedUrl, setCopiedUrl] = useState<boolean>(false);
 
   const scoreResult: TrustScoreResult = calculateTrustScore(entity, weights);
   const warnings = extractAllergenWarnings(entity);
+  const contractReport: DataContractReport = DataHubContractEngine.evaluateContract(entity);
+
+  const embedUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/embed/${encodeURIComponent(entity.urn)}`
+    : `/embed/${encodeURIComponent(entity.urn)}`;
+
+  const iframeSnippet = `<iframe src="${embedUrl}" width="420" height="680" frameborder="0" style="border-radius: 12px; overflow: hidden;" title="Data Nutrition Facts - ${entity.name}"></iframe>`;
+
+  const handleCopyEmbed = () => {
+    navigator.clipboard.writeText(iframeSnippet);
+    setCopiedEmbed(true);
+    setTimeout(() => setCopiedEmbed(false), 2000);
+  };
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(embedUrl);
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2000);
+  };
 
   const handlePresetSelect = (presetKey: string) => {
     setActivePreset(presetKey);
@@ -160,7 +184,7 @@ export const NutriLabel: React.FC<NutriLabelProps> = ({
               <span className="font-black text-base font-mono text-white">{scoreResult.subScores.lineage}%</span>
             </div>
 
-            {/* Quality Test Coverage */}
+            {/* Quality Test Coverage & Contract Compliance */}
             <div className="py-2.5 flex justify-between items-center">
               <div>
                 <span className="font-bold text-sm text-white">Quality Test Coverage</span>
@@ -170,6 +194,67 @@ export const NutriLabel: React.FC<NutriLabelProps> = ({
             </div>
 
           </div>
+
+          {/* DataHub Contract Compliance Badge Bar */}
+          <div className="mt-3 p-2.5 bg-slate-950/90 border border-slate-800 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {contractReport.status === 'PASSED' ? (
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              ) : (
+                <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
+              )}
+              <div>
+                <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                  DataHub Data Contract
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${
+                    contractReport.status === 'PASSED'
+                      ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                      : 'bg-amber-950 text-amber-400 border border-amber-800'
+                  }`}>
+                    {contractReport.compliancePct}% Passed ({contractReport.passedClauses}/{contractReport.totalClauses})
+                  </span>
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  {contractReport.status === 'PASSED' ? 'All SLA, Schema & Quality clauses passing' : `${contractReport.failedClauses} contract clause(s) breached`}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowContracts(!showContracts)}
+              className="text-xs text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1"
+            >
+              {showContracts ? 'Hide' : 'Inspect'}
+              {showContracts ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+
+          {/* Expandable Contract Clauses Inspector */}
+          {showContracts && (
+            <div className="mt-2 p-3 bg-slate-950 border border-slate-800 rounded-lg space-y-2 text-xs animate-fade-in">
+              <div className="font-bold text-slate-200 border-b border-slate-800 pb-1 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-sky-400" />
+                Active Contract Clauses ({contractReport.clauses.length})
+              </div>
+              <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1">
+                {contractReport.clauses.map((clause) => (
+                  <div key={clause.id} className="p-1.5 rounded bg-slate-900/90 border border-slate-800/80 flex items-start justify-between gap-2">
+                    <div>
+                      <div className="font-bold text-slate-200 flex items-center gap-1.5">
+                        <span className={`w-1.5 h-1.5 rounded-full ${clause.status === 'PASSED' ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+                        {clause.name}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-mono mt-0.5">{clause.actual}</div>
+                    </div>
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
+                      clause.status === 'PASSED' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-rose-950 text-rose-300 border border-rose-800'
+                    }`}>
+                      {clause.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Column Ingredients Section */}
           <div className="border-t-[6px] border-slate-100 pt-3 mt-3">
@@ -219,16 +304,28 @@ export const NutriLabel: React.FC<NutriLabelProps> = ({
         </div>
 
         {/* Card Action Controls */}
-        <div className="mt-5 pt-3 border-t-2 border-slate-100 flex flex-wrap items-center justify-between gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowWeightControls(!showWeightControls)}
-            className="text-xs font-extrabold border-2 border-slate-300 bg-slate-800 text-white hover:bg-slate-700"
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5 mr-1.5" />
-            {showWeightControls ? 'Hide Methodology Sliders' : 'Adjust Weight Methodology'}
-          </Button>
+        <div className="mt-5 pt-3 border-t-2 border-slate-100 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowWeightControls(!showWeightControls)}
+              className="text-xs font-extrabold border-2 border-slate-300 bg-slate-800 text-white hover:bg-slate-700"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 mr-1.5" />
+              {showWeightControls ? 'Hide Sliders' : 'Weights'}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowEmbedCode(!showEmbedCode)}
+              className="text-xs font-extrabold border-2 border-slate-300 bg-slate-800 text-white hover:bg-slate-700"
+            >
+              <Share2 className="w-3.5 h-3.5 mr-1.5 text-sky-400" />
+              Embed
+            </Button>
+          </div>
 
           {onSaveToDataHub && (
             <Button
@@ -254,6 +351,89 @@ export const NutriLabel: React.FC<NutriLabelProps> = ({
         </div>
 
       </div>
+
+      {/* Embed Code Snippet Modal Window */}
+      {showEmbedCode && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+          onClick={() => setShowEmbedCode(false)}
+        >
+          <Card 
+            className="bg-slate-900 border-2 border-slate-700 w-full max-w-lg p-6 space-y-4 shadow-2xl text-slate-100 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Share2 className="w-4.5 h-4.5 text-sky-400" />
+                Embed Nutrition Facts in BI & Documentation
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowEmbedCode(false)}
+                className="h-8 w-8 p-0 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors"
+                aria-label="Close modal"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  Direct Embed URL (for browser tabs or link shares)
+                </label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    readOnly
+                    value={embedUrl}
+                    className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-sky-500 selection:bg-sky-500/30"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyUrl}
+                    className="border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium shrink-0 h-9"
+                  >
+                    {copiedUrl ? <Check className="w-3.5 h-3.5 mr-1 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 mr-1 text-sky-400" />}
+                    {copiedUrl ? 'Copied' : 'Copy URL'}
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-300 block mb-1">
+                  HTML iframe Snippet (for Notion, Confluence, BI Tools)
+                </label>
+                <pre className="p-3 bg-slate-950 border border-slate-800 rounded-lg text-[11px] font-mono text-slate-200 overflow-x-auto whitespace-pre-wrap max-h-40 scrollbar-thin selection:bg-sky-500/30">
+                  {iframeSnippet}
+                </pre>
+              </div>
+            </div>
+
+            <div className="flex justify-end items-center gap-2.5 pt-2 border-t border-slate-800/60">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowEmbedCode(false)}
+                className="border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-4"
+              >
+                Close
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleCopyEmbed}
+                className="bg-sky-500 hover:bg-sky-400 text-white text-xs font-semibold flex items-center gap-1.5 px-4 shadow-md transition-all"
+              >
+                {copiedEmbed ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedEmbed ? 'Copied iframe!' : 'Copy iframe Snippet'}
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Methodology Customization Drawer/Panel */}
       {showWeightControls && (
