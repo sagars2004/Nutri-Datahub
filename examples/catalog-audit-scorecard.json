@@ -1,0 +1,290 @@
+[
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,ecommerce_db.public.orders,PROD)",
+    "name": "orders",
+    "platform": "snowflake",
+    "trustScore": 100,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 100,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.971Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,ecommerce_db.public.order_items,PROD)",
+    "name": "order_items",
+    "platform": "snowflake",
+    "trustScore": 89,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 56,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.972Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,ecommerce_db.public.customers,PROD)",
+    "name": "customers",
+    "platform": "snowflake",
+    "trustScore": 94,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 76,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.973Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,ecommerce_db.public.products,PROD)",
+    "name": "products",
+    "platform": "snowflake",
+    "trustScore": 89,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 56,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.974Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,ecommerce_db.public.inventories,PROD)",
+    "name": "inventories",
+    "platform": "snowflake",
+    "trustScore": 89,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 56,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.975Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,ecommerce_db.public.shipments,PROD)",
+    "name": "shipments",
+    "platform": "snowflake",
+    "trustScore": 77,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 56,
+      "testCoverage": 50
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.976Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,ecommerce_db.public.product_categories,PROD)",
+    "name": "product_categories",
+    "platform": "snowflake",
+    "trustScore": 89,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 56,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.976Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,ecommerce_db.public.suppliers,PROD)",
+    "name": "suppliers",
+    "platform": "snowflake",
+    "trustScore": 64,
+    "subScores": {
+      "freshness": 50,
+      "completeness": 100,
+      "lineage": 56,
+      "testCoverage": 50
+    },
+    "contractStatus": "FAILED",
+    "contractCompliancePct": 50,
+    "needsAttention": true,
+    "evaluatedAt": "2026-08-05T19:51:52.977Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:dbt,ecommerce_analytics.stg_orders,PROD)",
+    "name": "stg_orders",
+    "platform": "dbt",
+    "trustScore": 94,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 76,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.979Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:dbt,ecommerce_analytics.fct_orders,PROD)",
+    "name": "fct_orders",
+    "platform": "dbt",
+    "trustScore": 100,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 100,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.980Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:dbt,ecommerce_analytics.dim_customers,PROD)",
+    "name": "dim_customers",
+    "platform": "dbt",
+    "trustScore": 100,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 100,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.980Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:dbt,ecommerce_analytics.fct_daily_revenue,PROD)",
+    "name": "fct_daily_revenue",
+    "platform": "dbt",
+    "trustScore": 89,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 56,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.981Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,app_db.public.users,PROD)",
+    "name": "users",
+    "platform": "postgres",
+    "trustScore": 77,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 56,
+      "testCoverage": 50
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.981Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,app_db.public.payments,PROD)",
+    "name": "payments",
+    "platform": "postgres",
+    "trustScore": 77,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 56,
+      "testCoverage": 50
+    },
+    "contractStatus": "FAILED",
+    "contractCompliancePct": 75,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.982Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,app_db.public.audit_logs,PROD)",
+    "name": "audit_logs",
+    "platform": "postgres",
+    "trustScore": 21,
+    "subScores": {
+      "freshness": 0,
+      "completeness": 0,
+      "lineage": 32,
+      "testCoverage": 50
+    },
+    "contractStatus": "FAILED",
+    "contractCompliancePct": 0,
+    "needsAttention": true,
+    "evaluatedAt": "2026-08-05T19:51:52.982Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:tableau,executive_dashboards.sales_performance,PROD)",
+    "name": "Sales Performance Dashboard",
+    "platform": "tableau",
+    "trustScore": 94,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 76,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.983Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:powerbi,finance_reports.quarterly_burn,PROD)",
+    "name": "Quarterly Financial Burn",
+    "platform": "powerbi",
+    "trustScore": 94,
+    "subScores": {
+      "freshness": 100,
+      "completeness": 100,
+      "lineage": 76,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.983Z"
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:looker,marketing_analytics.campaign_roi,PROD)",
+    "name": "Campaign ROI Explorer",
+    "platform": "looker",
+    "trustScore": 92,
+    "subScores": {
+      "freshness": 92,
+      "completeness": 100,
+      "lineage": 76,
+      "testCoverage": 100
+    },
+    "contractStatus": "PASSED",
+    "contractCompliancePct": 100,
+    "needsAttention": false,
+    "evaluatedAt": "2026-08-05T19:51:52.984Z"
+  }
+]

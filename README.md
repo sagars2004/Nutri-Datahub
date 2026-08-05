@@ -47,6 +47,19 @@ Just as nutrition labels help consumers evaluate food quality at a glance, Nutri
 
 ---
 
+## 📁 Example Artifacts & Output Snippets (For Judges)
+
+Judges can inspect and evaluate Nutri's output quality without running any code by viewing pre-generated sample artifacts in the [`examples/`](examples) folder:
+
+- 📊 [**Catalog Audit Report (Markdown)**](examples/catalog-audit-report.md) — Full catalog audit scan of 18 assets with scores, sub-scores, and status badges.
+- 📜 [**Catalog Audit Scorecard (JSON)**](examples/catalog-audit-scorecard.json) — Structured JSON catalog scorecard export.
+- ⚡ [**Talk-to-Data SQL Generation**](examples/talk-to-data-sql.sql) — Grounded SQL query output with data nutrition safety warning headers.
+- 🔄 [**DataHub Writeback GraphQL Payload**](examples/datahub-writeback-payload.json) — Mutation payload for writing 5 structured properties and applying `nutri:needs-attention` tags in DataHub GMS.
+- 🔧 [**dbt Governance Remediation Patch**](examples/dbt-remediation-patch.yml) — Automatically generated dbt `schema.yml` patch to document columns and boost completeness scores.
+- 📋 [**Data Contract Compliance SLA Report**](examples/contract-compliance-report.json) — Automated SLA contract audit report with clause evaluation breakdown.
+
+---
+
 ## 🛠️ Architecture & Technology Stack
 
 - **Frontend / Framework**: Next.js 14 (App Router), React, Vanilla CSS Design System (`src/styles/nutri-label.css`).

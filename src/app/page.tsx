@@ -232,42 +232,52 @@ export default function HomePage() {
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-sky-500 selection:text-white flex flex-col">
       
       {/* Top Navbar */}
-      <header className="bg-slate-900 border-b border-slate-800/80 sticky top-0 z-50 px-6 py-3.5 backdrop-blur-md">
+      <header className="bg-slate-900/90 border-b border-slate-800/80 sticky top-0 z-50 px-6 py-3.5 backdrop-blur-xl shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-slate-950 border border-slate-700 flex items-center justify-center font-black text-xl text-white shadow-sm">
-              🥗
+          {/* Brand Logo & Title */}
+          <div className="flex items-center gap-3.5">
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-xl blur opacity-40 group-hover:opacity-75 transition duration-300"></div>
+              <div className="relative w-10 h-10 rounded-xl bg-slate-950 border border-slate-700/80 flex items-center justify-center shadow-md">
+                <Activity className="w-5 h-5 text-sky-400" />
+              </div>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-extrabold tracking-tight text-white">
+
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl font-black tracking-tight text-white flex items-center gap-1">
                   NUTRI
                 </span>
-                <Badge variant="outline" className="border-sky-500/40 text-sky-400 bg-sky-500/10 text-[10px] uppercase font-bold tracking-wider">
-                  DataHub Hackathon 2026
+                <span className="h-4 w-px bg-slate-700 hidden sm:inline-block" />
+                <Badge variant="outline" className="border-sky-500/30 text-sky-300 bg-sky-950/50 text-[10px] uppercase font-bold tracking-wider hidden sm:inline-flex">
+                  Build with DataHub: Agent Hackathon 2026
                 </Badge>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
+              <p className="text-[11px] text-slate-400 font-medium hidden md:block">
                 Standardized Data Nutrition Facts & Trust Score Platform
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-semibold">
-            <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-full text-slate-300">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>DataHub GMS Connected</span>
+          {/* Right Header Status & Navigation Links */}
+          <div className="flex items-center gap-3 text-xs font-medium">
+            <div className="flex items-center gap-2 bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-full text-slate-300 shadow-inner">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="text-xs font-semibold text-slate-200">DataHub GMS Connected</span>
             </div>
             
             <a
               href="http://localhost:9002"
               target="_blank"
               rel="noreferrer"
-              className="hidden sm:flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors bg-slate-800/60 px-3 py-1.5 rounded-lg border border-slate-700/60"
+              className="hidden sm:flex items-center gap-1.5 text-slate-300 hover:text-white transition-all bg-slate-800/80 hover:bg-slate-700/80 px-3.5 py-1.5 rounded-lg border border-slate-700/80 shadow-sm"
             >
               <span>Open DataHub UI</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ExternalLink className="w-3.5 h-3.5 text-sky-400" />
             </a>
           </div>
 

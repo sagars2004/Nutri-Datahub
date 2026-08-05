@@ -1,0 +1,45 @@
+{
+  "datasetUrn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,b2fd91.order_entry_db.order_entry.suppliers,PROD)",
+  "datasetName": "suppliers",
+  "platform": "snowflake",
+  "evaluatedAt": "2026-08-05T19:50:00.000Z",
+  "status": "FAILED",
+  "compliancePct": 75,
+  "totalClauses": 4,
+  "passedClauses": 3,
+  "failedClauses": 1,
+  "clauses": [
+    {
+      "id": "freshness_sla",
+      "name": "Freshness SLA Cadence (< 24 hrs)",
+      "type": "FRESHNESS",
+      "status": "PASSED",
+      "expected": "< 86400000 ms",
+      "actual": "Last modified 2.5 hours ago"
+    },
+    {
+      "id": "column_documentation_coverage",
+      "name": "Column Documentation Threshold (>= 80%)",
+      "type": "COMPLETENESS",
+      "status": "FAILED",
+      "expected": ">= 80% columns documented",
+      "actual": "55.5% columns documented (4 undocumented fields)"
+    },
+    {
+      "id": "governance_ownership",
+      "name": "Governance Ownership Assignment",
+      "type": "OWNERSHIP",
+      "status": "PASSED",
+      "expected": "At least 1 owner assigned",
+      "actual": "Owner present (urn:li:corpuser:data_steward)"
+    },
+    {
+      "id": "quality_test_coverage",
+      "name": "Data Quality Test Coverage",
+      "type": "QUALITY",
+      "status": "PASSED",
+      "expected": "Passing quality assertions present",
+      "actual": "2 dbt tests passing"
+    }
+  ]
+}

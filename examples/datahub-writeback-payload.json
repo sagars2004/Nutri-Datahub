@@ -1,0 +1,35 @@
+{
+  "_comment": "Nutri GraphQL payload for writing Trust Scores & structured properties directly back to DataHub GMS",
+  "endpoint": "http://localhost:8080/api/graphql",
+  "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,b2fd91.order_entry_db.order_entry.suppliers,PROD)",
+  "step1_provision_structured_properties": {
+    "mutation": "mutation createProp($id: String!, $name: String!, $desc: String!) { createStructuredProperty(input: { id: $id, displayName: $name, description: $desc, valueType: \"urn:li:dataType:datahub.number\", entityTypes: [\"urn:li:entityType:datahub.dataset\"] }) { urn } }",
+    "properties_created": [
+      { "id": "nutriTrustScore", "displayName": "Nutri Trust Score", "description": "Overall Nutri Trust Score (0-100)" },
+      { "id": "nutriFreshnessScore", "displayName": "Nutri Freshness Sub-Score", "description": "Freshness Sub-Score (0-100)" },
+      { "id": "nutriCompletenessScore", "displayName": "Nutri Completeness Sub-Score", "description": "Completeness Sub-Score (0-100)" },
+      { "id": "nutriLineageScore", "displayName": "Nutri Lineage Sub-Score", "description": "Lineage Depth Sub-Score (0-100)" },
+      { "id": "nutriTestCoverageScore", "displayName": "Nutri Test Coverage Sub-Score", "description": "Test Coverage Sub-Score (0-100)" }
+    ]
+  },
+  "step2_upsert_values": {
+    "mutation": "mutation upsertProps($assetUrn: String!, $params: [StructuredPropertyInputParams!]!) { upsertStructuredProperties(input: { assetUrn: $assetUrn, structuredPropertyInputParams: $params }) { properties { structuredProperty { urn } } } }",
+    "variables": {
+      "assetUrn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,b2fd91.order_entry_db.order_entry.suppliers,PROD)",
+      "params": [
+        { "structuredPropertyUrn": "urn:li:structuredProperty:nutriTrustScore", "values": [{ "numberValue": 64 }] },
+        { "structuredPropertyUrn": "urn:li:structuredProperty:nutriFreshnessScore", "values": [{ "numberValue": 100 }] },
+        { "structuredPropertyUrn": "urn:li:structuredProperty:nutriCompletenessScore", "values": [{ "numberValue": 55 }] },
+        { "structuredPropertyUrn": "urn:li:structuredProperty:nutriLineageScore", "values": [{ "numberValue": 50 }] },
+        { "structuredPropertyUrn": "urn:li:structuredProperty:nutriTestCoverageScore", "values": [{ "numberValue": 50 }] }
+      ]
+    }
+  },
+  "step3_auto_apply_tag_if_low_score": {
+    "condition": "trustScore < 70 (Score is 64)",
+    "mutation": "mutation addNeedsAttentionTag($resourceUrn: String!) { addTag(input: { tagUrn: \"urn:li:tag:nutri:needs-attention\", resourceUrn: $resourceUrn }) }",
+    "variables": {
+      "resourceUrn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,b2fd91.order_entry_db.order_entry.suppliers,PROD)"
+    }
+  }
+}
