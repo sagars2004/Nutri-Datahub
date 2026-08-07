@@ -10,25 +10,35 @@ export async function queryDataHubGraphQL<T = any>(
   query: string,
   variables: Record<string, any> = {}
 ): Promise<T> {
-  const resp = await fetch(GRAPHQL_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ query, variables }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-  if (!resp.ok) {
-    const errorText = await resp.text();
-    throw new Error(`DataHub GraphQL HTTP ${resp.status}: ${errorText}`);
+  try {
+    const resp = await fetch(GRAPHQL_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query, variables }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!resp.ok) {
+      const errorText = await resp.text();
+      throw new Error(`DataHub GraphQL HTTP ${resp.status}: ${errorText}`);
+    }
+
+    const json = await resp.json();
+    if (json.errors && json.errors.length > 0) {
+      throw new Error(`DataHub GraphQL Error: ${json.errors[0].message}`);
+    }
+
+    return json.data;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
   }
-
-  const json = await resp.json();
-  if (json.errors && json.errors.length > 0) {
-    throw new Error(`DataHub GraphQL Error: ${json.errors[0].message}`);
-  }
-
-  return json.data;
 }
 
 /**

@@ -76,6 +76,8 @@ export async function callUniversalLlm(options: {
 
   // Handler for GMI Cloud and OpenAI-compatible providers
   if (config.provider === 'gmi' || config.provider === 'openai' || config.provider === 'custom') {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
     try {
       const endpoint = `${config.baseUrl?.replace(/\/$/, '')}/chat/completions`;
       const bodyPayload: any = {
@@ -96,7 +98,9 @@ export async function callUniversalLlm(options: {
           'Authorization': `Bearer ${config.apiKey}`,
         },
         body: JSON.stringify(bodyPayload),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errText = await response.text();
@@ -108,6 +112,7 @@ export async function callUniversalLlm(options: {
       const content = data?.choices?.[0]?.message?.content;
       return content ? content.trim() : null;
     } catch (error) {
+      clearTimeout(timeoutId);
       console.warn(`Universal LLM call failed (${config.provider}):`, error);
       return null;
     }
@@ -244,38 +249,4 @@ Return ONLY a valid JSON object mapping column name to string description. Examp
   return descriptions;
 }
 
-/**
- * Extracts Allergen / Warning flags (PII callouts, governance warnings, assertion failures)
- */
-export function extractAllergenWarnings(entity: NutriEntity): string[] {
-  const warnings: string[] = [];
-
-  // PII & Sensitive Tags
-  const piiTags = entity.tags.filter((t) =>
-    /pii|sensitive|confidential|restricted|secret/i.test(t)
-  );
-  if (piiTags.length > 0) {
-    warnings.push(`Contains Sensitive/PII Data (${piiTags.join(', ')})`);
-  }
-
-  // Field-level PII Tags
-  for (const field of entity.fields) {
-    const fieldPii = field.tags.filter((t) => /pii|sensitive/i.test(t));
-    if (fieldPii.length > 0) {
-      warnings.push(`Column "${field.fieldPath}" flagged with ${fieldPii.join(', ')}`);
-    }
-  }
-
-  // Assertion failures
-  const failedAssertions = entity.assertions.filter((a) => !a.passed);
-  for (const fa of failedAssertions) {
-    warnings.push(`Failing Quality Check: ${fa.type}`);
-  }
-
-  // Governance warnings
-  if (entity.owners.length === 0) {
-    warnings.push('Unowned Asset (No Owner Assigned)');
-  }
-
-  return warnings;
-}
+export { extractAllergenWarnings } from '../utils/warnings';

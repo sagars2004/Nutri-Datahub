@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { NutriEntity, WeightConfig, TrustScoreResult } from '../types/nutri';
 import { calculateTrustScore } from '../engine/scoring';
-import { extractAllergenWarnings } from '../services/llm';
+import { extractAllergenWarnings } from '../utils/warnings';
 import { DataHubContractEngine, DataContractReport } from '../services/contracts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
